@@ -52,7 +52,7 @@ function welcome() {
 // function to view products
 function viewProducts() {
     // save query term
-    var query = "SELECT * FROM products";
+    const query = "SELECT * FROM products";
     // run query
     connection.query(query, function (error, results) {
         // let us know if error
@@ -67,7 +67,7 @@ function viewProducts() {
 // function to view low inventory
 function viewLowInventory() {
     // save query term
-    var query = "SELECT * FROM products WHERE stock_quantity<5";
+    const query = "SELECT * FROM products WHERE stock_quantity<5";
     // run query
     connection.query(query, function (error, results) {
         // let us know if error
@@ -111,11 +111,11 @@ function addToInventory() {
                 }
             }
         ]).then(function (answer) {
-            // init item qty var
-            var itemQty;
+            // init item qty const
+            const itemQty;
             // loop through results, if db item id equals manager's input, set itemQty
             // to stock qty of that item 
-            for (var i = 0; i < results.length; i++) {
+            for (let i = 0; i < results.length; i++) {
                 if (parseInt(answer.id) === results[i].item_id) {
                     itemQty = results[i].stock_quantity;
                 }
@@ -164,9 +164,9 @@ function addNewProduct() {
                 type: "list",
                 choices: function () {
                     // empty array
-                    var deptArray = [];
+                    const deptArray = [];
                     // filling array with all detps from table
-                    for (var i = 0; i < results.length; i++) {
+                    for (let i = 0; i < results.length; i++) {
                         deptArray.push(results[i].department_name);
                     }
                     // returning filled array
@@ -226,12 +226,12 @@ function addItemToDb(item, department, price, quantity) {
 // function for building console table
 function consoleTable(title, results) {
     // init empty values array for console table
-    var values = [];
+    const values = [];
     // loop through all results
-    for (var i = 0; i < results.length; i++) {
+    for (let i = 0; i < results.length; i++) {
         // save info to an object on each iteration, object properties will be 
         // column headers in console table
-        var resultObject = {
+        const resultObject = {
             ID: results[i].item_id,
             Item: results[i].product_name,
             Price: "$" + results[i].price,

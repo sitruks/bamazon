@@ -51,7 +51,7 @@ function viewSales() {
 	// be the resulting table headers
 	// from departments table, inner join products table where dept names equal each 
 	// other. group by dept id
-	var joinQuery = "SELECT department_id, departments.department_name, over_head_costs,"
+	const joinQuery = "SELECT department_id, departments.department_name, over_head_costs,"
 		+ " SUM(product_sales) AS product_sales," 
 		+ " SUM(product_sales) - over_head_costs AS total_profit ";
 	joinQuery += "FROM departments INNER JOIN products ";
@@ -83,9 +83,9 @@ function createDepartment() {
 				// validating dept doesn't already exist
 				validate: function(value) {
 					// create empty dept array
-					var deptArray = [];
+					const deptArray = [];
 					// push all current depts to array
-					for (var i = 0; i < results.length; i++) {
+					for (let i = 0; i < results.length; i++) {
 						deptArray.push(results[i].department_name.toLowerCase());
 					}
 					// if supervisor input not in array, return true, else return false
@@ -128,12 +128,12 @@ function createDepartment() {
 // function for building console table for viewing total profit
 function consoleTableProfit(title, results) {
 	// init empty values array for console table
-	var values = [];
+	const values = [];
 	// loop through all results
-	for (var i = 0; i < results.length; i++) {
+	for (let i = 0; i < results.length; i++) {
 		// save info to an object on each iteration, object properties will be 
 		// column headers in console table
-		var resultObject = {
+		const resultObject = {
 			ID: results[i].department_id,
 			Department: results[i].department_name,
 			Overhead: "$" + results[i].over_head_costs.toFixed(2),
@@ -150,12 +150,12 @@ function consoleTableProfit(title, results) {
 // function for building console table for adding new dept function
 function consoleTableDept(title, results) {
 	// init empty values array for console table
-	var values = [];
+	const values = [];
 	// loop through all results
-	for (var i = 0; i < results.length; i++) {
+	for (let i = 0; i < results.length; i++) {
 		// save info to an object on each iteration, object properties will be 
 		// column headers in console table
-		var resultObject = {
+		const resultObject = {
 			ID: results[i].department_id,
 			Department: results[i].department_name,
 			Overhead: "$" + results[i].over_head_costs.toFixed(2),
