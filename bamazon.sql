@@ -7,9 +7,9 @@ use bamazon;
 
 -- MAKE TABLE
 create table products (
-    item_id int not null auto_increment,
-    product_name varchar(100) not null,
-    department_name varchar(100) not null,
+    item_id int auto_increment not null,
+    product_name varchar(100) null,
+    department_name varchar(100) null,
     price decimal(10,2) null,
     stock_quantity int null,
     product_sales decimal(10,2) default 0,
@@ -19,18 +19,18 @@ create table products (
 -- ADD DUMMY VALUES
 
 -- CREATE CUSTOMER TABLES
-use bamazon;
-insert into products (product_name, department_name, price, stock_quantity, product_sales)
-values ("Fuzzy socks", "Clothes", 2.99, 479, 30306),
-("Long socks", "Clothes", 3.99, 42, 64000),
-("Widget", "Toys", 14.36, 94822, 2429009),
-("Cog", "Electronics", 1.50, 1267, 289682),
-("Wheel", "Hobby", 5.87, 527, 50510),
-("Copper wire", "Electronics", 3.97, 7300, 68565),
-("Coppr wire", "Electronics", 1.97, 900, 323654),
-("Comfy shoes", "Clothes", 19.65, 199, 8363),
-("Warm slippers", "Household", 16.89, 6100, 214343),
-("Yarn and thread", "Hobby", 0.99, 1245300, 3467764380);
+-- use bamazon;
+insert into products (product_name, department_name, price, stock_quantity)
+values ('Fuzzy socks', 'Clothes', 2.99, 30306),
+('Long socks', 'Clothes', 3.99, 64000),
+('Widget', 'Toys', 14.36, 48222),
+('Cog', 'Electronics', 1.50, 289682),
+('Wheel', 'Hobby', 5.87, 5510),
+('Copper wire', 'Electronics', 3.97, 73565),
+('Coppr wire', 'Electronics', 1.97, 93654),
+('Comfy shoes', 'Clothes', 19.65, 1363),
+('Warm slippers', 'Household', 16.89, 6135),
+('Yarn and thread', 'Hobby', 0.99, 1245300);
 
 -- CREATE DEPARTMENTS TABLES
 create table departments (
@@ -42,7 +42,7 @@ create table departments (
 
 -- DEFAULT TABLE VALUES
 insert into departments (department_name, over_head_costs)
-values ("Hobby", 2000), ("Electronics", 10000), ("Toys", 2000), ("Household", 1000), ("Clothes", 1000);
+values ('Hobby', 2000), ('Electronics', 10000), ('Toys', 2000), ('Household', 1000), ('Clothes', 1000);
 
 -- VIEW TABLES
 select * from products;
