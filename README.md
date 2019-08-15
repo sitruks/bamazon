@@ -1,11 +1,26 @@
-# bamazon
+# 𝛃AMAZON
 bAMAZON is an Amazon-like storefront supported by a MySQL database. The app takes in orders from customers and depletes stock from the store's inventory. As an added bonus, it can track product sales across one's store's departments and then provide a summary of the highest-grossing departments in the store.
 
 # demo - screencapture
 A live example of good 'ol bAMAZON in action!  
 ![bAMAZON in ACTION](bamazon-demo.gif)
 
-# 3-Part Application 
+# featured technology
+- [console.table](https://www.npmjs.com/package/console.table)
+- [inquirer](https://www.npmjs.com/package/inquirer)
+- [MySQL](https://www.mysql.com/)
+- [Node.js](https://nodejs.org/en/)  
+
+
+# app features
+- CLI UI with user prompts via **Inquirer,js** which provides a simple user experience. 
+- **Customers** can *purchase* products from the available products in the database. 
+- **Managers** can *add* inventory and new products to the databse. 
+- **Supervisors** can *view* profit data by department and *add* new departments. 
+- Console table provides a GUI for product, inventory, and department data from within the CLI.
+- User input validation (user <=> mysql) is key feature that prevents supervisors from overdrawing on purchases.
+
+# three-part application 
 ### **Customer View**
 run: node bamazonCustomer.js
 
@@ -65,3 +80,8 @@ run: node bamazonSupervisor.js
 
     FEATURES: 
         `total_profit` is calculated on the fly (difference between over_head_costs and product_sales) and does not need tp be stored in any database. It instead utilizes a custom alias.
+
+# sitruks-inspiration-origin-homage
+**framework of the app was helped along immensely by Paul,** [the person who rele@rnt me the benefits of CRUD](https://github.com/paulz92/Bamazon)
+
+    Built with ♥︎ for my Bootcamp Project

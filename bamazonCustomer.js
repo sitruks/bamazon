@@ -1,231 +1,192 @@
-require('dotenv').config();
+require("dotenv").config();
 const mysql = require("mysql");
 const inquirer = require("inquirer");
+const colors = require("colors");
+const consoleTableNPM = require("console.table");
 
+// command line styling
+const chalk = require("chalk");
+const clear = require("clear");
+const figlet = require("figlet");
+
+// create mysql connection
 const connection = mysql.createConnection({
     host: "localhost",
-
-    // Your port; if not 3306
     port: 3306,
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_USER_PASSWORD,
     database: "bamazon"
 });
 
-connection.connect(function (err) {
-    if (err) throw err;
-    showItems();
-    runSearch();
+// connect to db
+connection.connect(function(error){
+	if (error) throw error;
+	// welcome customer
+	console.log("\n-----------------------------------------------------------------" 
+		+ "\nWelcome to Bamazon! Check out what we've got for you!\n" 
+		+ "-----------------------------------------------------------------\n");
+	// start the app
+	welcome();
 });
 
-function showItems() {
-    connection.query("SELECT * FROM products", function (err, res) {
-        if (err) throw err;
-        console.log("/---/---/---/---/---/---/---/");
-        console.log("/---|Welcome to Bamazon|---/");
-        console.log("/---/---/---/---/---/---/---/");
-        console.log("/---|As seen on the 2nd|---/");
-        console.log("/---|  page of Google. |---/");
-        console.log(res);
-        console.log("/---/---/---/---/---/---/---/");
-        connection.end();
-    });
+// initial screen upon app open
+function welcome() {
+	// ask customer what they'd like to do
+	inquirer.prompt([
+		{
+			name: "action",
+			type: "list",
+			choices: ["View items for sale", "Leave the store"],
+			message: "Please select what you would like to do."
+		}
+	]).then(function(action) {
+		// if user wants to view items, run the view items function
+		if (action.action === "View items for sale") {
+			viewItems();
+			// if user wants to leave, run exit function
+		} else if (action.action === "Leave the store") {
+			exit();
+		}
+	});
 }
 
-function runSearch() {
-    inquirer
-        .prompt({
-            name: "action",
-            type: "list",
-            message: "Since we are awesome, you can lookup items by id number, instead of name.\nWe currently have 10 items for sale.\nPlease select a number between 1-10",
-            choices: [1,2,3,4,5,6,7,8,9,10, "exit"]
-        })
-        .then(function (answer) {
-            switch (answer.action) {
-                case "Find songs by artist":
-                    artistSearch();
-                    break;
-
-                case "Find all artists who appear more than once":
-                    multiSearch();
-                    break;
-
-                case "Find data within a specific range":
-                    rangeSearch();
-                    break;
-
-                case "Search for a specific song":
-                    songSearch();
-                    break;
-
-                case "exit":
-                    connection.end();
-                    break;
-            }
-        });
+// view items function
+function viewItems() {
+	// save my sql query
+	const query = "SELECT * FROM products";
+	// query db display results
+	connection.query(query, function(error, results) {
+		// if error, tell us
+		if (error) throw error;
+		// call the console table function to build/display the items table
+		consoleTable(results);
+		// ask customer what they"d like to buy and how much qty
+		inquirer.prompt([
+			{
+				name: "id",
+				message: "Please enter the ID of the item that you would like to purchase.",
+				// validates that the id is a number greater than 0 and less than/equal to 
+				// the number of items
+				validate: function(value) {
+					if (value > 0 && isNaN(value) === false && value <= results.length) {
+						return true;
+					}
+					return false;
+				}
+			},
+			{
+				name: "qty",
+				message: "What quantity would you like to purchase?",
+				// validate the quantity is a number larger than 0
+				validate: function(value) {
+					if (value > 0 && isNaN(value) === false) {
+						return true;
+					}
+					return false;
+				}
+			}
+		]).then(function(transaction) {
+			// init itemQty, itemPrice, itemName consts
+			const itemQty;
+			const itemPrice;
+			const itemName;
+			const productSales;
+			// set above consts equal to results where the user id matches db id
+			for (const j = 0; j < results.length; j++) {
+				if (parseInt(transaction.id) === results[j].item_id) {
+					itemQty = results[j].stock_quantity;
+					itemPrice = results[j].price;
+					itemName = results[j].product_name;
+					productSales = results[j].product_sales;
+				}
+			}
+			// if user tries to buy more qty than db has available, tell them no, run the
+			// welcome function again
+			if (parseInt(transaction.qty) > itemQty) {
+				console.log("\nInsufficient inventory for your requested quantity. We have " 
+					+ itemQty + " in stock. Try again.\n");
+				welcome();
+			} 
+			// if user tries to buy equal/less qty than db has available, tell them yes,
+			// update the db to reduce qty by customer purchase amt, update product sales
+			// with revenue from the sale
+			else if (parseInt(transaction.qty) <= itemQty) {
+				console.log("\nCongrats! You successfully purchased " + transaction.qty 
+					+ " of " + itemName + ".");
+				lowerQty(transaction.id, transaction.qty, itemQty, itemPrice);
+				salesRevenue(transaction.id, transaction.qty, productSales, itemPrice);
+			}
+		});
+	});
 }
 
-function artistSearch() {
-    inquirer
-        .prompt({
-            name: "artist",
-            type: "input",
-            message: "What artist would you like to search for?"
-        })
-        .then(function (answer) {
-            var query = "SELECT position, song, year FROM top5000 WHERE ?";
-            connection.query(query, { artist: answer.artist }, function (err, res) {
-                for (var i = 0; i < res.length; i++) {
-                    console.log("Position: " + res[i].position + " || Song: " + res[i].song + " || Year: " + res[i].year);
-                }
-                runSearch();
-            });
-        });
+// function for building the items table for customers to view
+function consoleTable(results) {
+	// create empty values array
+	const values = [];
+	// loop through all results
+	for (const i = 0; i < results.length; i++) {
+		// create resultObject for each iteration. properties of object will be column
+		// headings in the console table
+		const resultObject = {
+			ID: results[i].item_id,
+			Item: results[i].product_name,
+			Price: "$" + results[i].price
+		};
+		// push result object to values array
+		values.push(resultObject);
+	}
+	// create table with title items for sale with the values array
+	console.table("\nItems for Sale", values);
 }
 
-
----
-
-
-var mysql = require("mysql");
-var inquirer = require("inquirer");
-
-var connection = mysql.createConnection({
-    host: "localhost",
-    port: 3306,
-    user: "root",
-    password: "XHLkwj610:)",
-    database: "bamazon"
-});
-
-connection.connect(function (err) {
-    if (err) throw err;
-    displayInfo();
-
-});
-
-//define function displayInfo to display all products info for customers
-function displayInfo() {
-    var query = "SELECT * FROM products";
-    connection.query(query, function (err, res) {
-        if (err) throw err;
-        console.log("Product Information For Customer\n");
-        for (var i = 0; i < res.length; i++)
-            console.log(
-                "Item ID: " +
-                res[i].item_id +
-                "|| Product Name: " +
-                res[i].product_name +
-                "|| Department Name: " +
-                res[i].department_name +
-                "|| Price: " +
-                res[i].price +
-                "|| Stock Quantity: " +
-                res[i].stock_quantity
-            );
-        runInquirerCustomer();
-    });
+// reduce stock qty function
+function lowerQty(item, purchaseQty, stockQty, price) {
+	// query with an update, set stock equal to stockqty - purchase qty
+	// where the item_id equals the id the user entered
+	connection.query(
+		"UPDATE products SET ? WHERE ?", 
+		[
+			{
+				stock_quantity: stockQty - parseInt(purchaseQty)
+			},
+			{
+				item_id: parseInt(item)
+			}
+		],
+		// throw error if error, else run displayCost
+		function(error, response) {
+			if (error) throw error;
+	});
 }
 
-
-//define function runInquirerCustomer to let customers choose an action
-function runInquirerCustomer() {
-    console.log("================================");
-    inquirer
-        .prompt({
-            name: "customerAction",
-            type: "list",
-            message: "What you would you like to do?",
-            choices: ["I would like to purchase an item.", "Exit"]
-
-        })
-        .then(function (choice) {
-            switch (choice.customerAction) {
-                case "I would like to purchase an item.":
-                    item_idSearch();
-                    break;
-
-                case "Exit":
-                    connection.end();
-                    break;
-            }
-        })
+// add sales rev function
+function salesRevenue(item, purchaseQty, productSales, price) {
+	const customerCost = parseInt(purchaseQty) * price;
+	// query with an update, set product rev equal to current product sales + 
+	// purchase qty * price where the item id equals the id the user entered
+	connection.query(
+		"UPDATE products SET ? WHERE ?", 
+		[
+			{
+				product_sales: productSales + customerCost
+			}, 
+			{
+				item_id: parseInt(item)
+			}
+		], 
+		function(error, response) {
+			if (error) throw error;
+			// log it fixed to 2 decimals to tell customer what their price was
+			console.log("The total price is $" + customerCost.toFixed(2) 
+				+ ". Gotta love no sales tax. Thanks for you purchase!\n");
+			// run welcome function
+			welcome();
+	});
 }
 
-
-//define function item_idSearch to let customers input item id that they went to purchase
-function item_idSearch() {
-    inquirer
-        .prompt({
-            name: "item_id",
-            type: "input",
-            message: "What item id you would like to purchase?"
-        })
-        .then(function (answer) {
-            var query = "SELECT * FROM products WHERE ?";
-            connection.query(query, { item_id: answer.item_id }, function (err, res) {
-                if (err) throw err;
-                for (var i = 0; i < res.length; i++) {
-                    console.log("Item ID: " +
-                        res[i].item_id +
-                        "|| Product Name: " +
-                        res[i].product_name +
-                        "|| Department Name: " +
-                        res[i].department_name +
-                        "|| Price: " +
-                        res[i].price +
-                        "|| Stock Quantity: " +
-                        res[i].stock_quantity
-                    )
-                }
-                purchase_unitSearch(res[0]);
-            })
-        })
-
+// exit function says bye to user and ends db connection
+function exit() {
+	console.log("\nThanks for stopping by! Have a good day.");
+	connection.end();
 }
-
-
-//define function purchase_unitSearch to let customers to decide the units of products they want to purchase
-function purchase_unitSearch(result) {
-    inquirer
-        .prompt({
-            name: "purchase_unit",
-            type: "input",
-            message: "How many units of the product would you like to purchase?"
-        })
-        .then(function (input) {
-            console.log("\nI would like to buy " + input.purchase_unit);
-            stock_quantityCheck(result, input);
-        })
-}
-
-
-//define function stock_quantityCheck to check again stock quantity, thus to decide whether the quantity is insufficient for customers to purchase
-function stock_quantityCheck(result, input) {
-    //console.log(input.purchase_unit);
-    //console.log(result.stock_quantity);
-    if (input.purchase_unit > result.stock_quantity) {
-        console.log("\nInsufficient quantity for item id: " + result.item_id)
-    } else { order_place(result, input); }
-
-}
-
-//define function order_place to let customers to place order and calculate the total price for the products that the customer purchased
-
-function order_place(result, input) {
-    var newQuanity = result.stock_quantity - input.purchase_unit;
-    var totalPrice = input.purchase_unit * result.price;
-    var totalPriceRound = Math.round(totalPrice * 100) / 100
-    var newProductsSales = result.products_sales + totalPriceRound;
-
-
-    var query = "UPDATE products SET stock_quantity=?, products_sales = ? WHERE item_id =?";
-    connection.query(query, [newQuanity, newProductsSales, result.item_id], function (err, res) {
-        if (err) throw err;
-        console.log("The total price for the product with item id " + result.item_id + " is " + totalPriceRound);
-        runInquirerCustomer();
-    });
-}
-
-
-
