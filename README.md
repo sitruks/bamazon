@@ -82,6 +82,8 @@ run: node bamazonSupervisor.js
         `total_profit` is calculated on the fly (difference between over_head_costs and product_sales) and does not need tp be stored in any database. It instead utilizes a custom alias.
 
 # sitruks-inspiration-origin-homage
-**framework of the app was helped along immensely by Paul,** [the person who rele@rnt me the benefits of CRUD](https://github.com/paulz92/Bamazon)
+- **framework of the app was helped along immensely by Paul,** [the person who rele@rnt me the benefits of CRUD](https://github.com/paulz92/Bamazon)
+
+- **styling was helped greatly thanks to** [Darren](https://www.sitepoint.com/javascript-command-line-interface-cli-node-js/)
 
     Built with ♥︎ for my Bootcamp Project
