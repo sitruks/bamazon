@@ -31,6 +31,16 @@ connection.connect(function (error) {
         "\n-----------------------------------------------------------------" +
         "\nas seen on the 2nd page of Google ... we've got you ... sort of.\n" +
         "-----------------------------------------------------------------\n");
+
+
+        console.log(
+            `\n-----------------------------------------------------------------\n
+            ${chalk.bgYellow("as seen on the 2nd page of Google ... we've got you ... sort of.")}
+            \n-----------------------------------------------------------------\n`)
+    // console.log(
+    //     "\n-----------------------------------------------------------------" +
+    //     "\nas seen on the 2nd page of Google ... we've got you ... sort of.\n" +
+    //     "-----------------------------------------------------------------\n");
     // start the app
     welcome();
 });
@@ -92,7 +102,6 @@ function viewItems() {
                 }
             }
         ]).then(function (transaction) {
-            // init itemQty, itemPrice, itemName consts
             let itemQty;
             let itemPrice;
             let itemName;
@@ -192,6 +201,15 @@ function salesRevenue(item, purchaseQty, productSales, price) {
 
 // graphic farewell message
 function exit() {
-    console.log("\nThanks for stopping by! Have a good day.");
+    // console.log("\nThanks for stopping by! Have a good day.");
+    console.log(`\n${chalk.blue("Thank you for dropping by!")}\n`);
     connection.end();
 }
+
+
+clear();
+console.log(
+    chalk.yellow(
+        figlet.textSync('Not enough\ninventory', { horizontalLayout: 'full' })
+    )
+);
