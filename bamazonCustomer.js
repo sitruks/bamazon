@@ -28,19 +28,9 @@ connection.connect(function (error) {
         )
     );
     console.log(
-        "\n-----------------------------------------------------------------" +
-        "\nas seen on the 2nd page of Google ... we've got you ... sort of.\n" +
-        "-----------------------------------------------------------------\n");
-
-
-        console.log(
-            `\n-----------------------------------------------------------------\n
-            ${chalk.bgYellow("as seen on the 2nd page of Google ... we've got you ... sort of.")}
-            \n-----------------------------------------------------------------\n`)
-    // console.log(
-    //     "\n-----------------------------------------------------------------" +
-    //     "\nas seen on the 2nd page of Google ... we've got you ... sort of.\n" +
-    //     "-----------------------------------------------------------------\n");
+        `----------------------------------------------------------------
+${chalk.bgGreen(chalk.black("as seen on the 2nd page of Google ... we've got you ... sort of."))}
+----------------------------------------------------------------`)
     // start the app
     welcome();
 });
@@ -202,14 +192,7 @@ function salesRevenue(item, purchaseQty, productSales, price) {
 // graphic farewell message
 function exit() {
     // console.log("\nThanks for stopping by! Have a good day.");
-    console.log(`\n${chalk.blue("Thank you for dropping by!")}\n`);
+    clear();
+    console.log(`\n${chalk.blue(figlet.textSync('Have a \nnice day!', { horizontalLayout: 'full' }),"\nThank you for dropping by!")}\n`);
     connection.end();
 }
-
-
-clear();
-console.log(
-    chalk.yellow(
-        figlet.textSync('Not enough\ninventory', { horizontalLayout: 'full' })
-    )
-);
