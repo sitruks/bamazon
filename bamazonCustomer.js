@@ -182,8 +182,10 @@ function salesRevenue(item, purchaseQty, productSales, price) {
         function (error, response) {
             if (error) throw error;
             // log it fixed to 2 decimals to tell customer what their price was
-            console.log("The total price is $" + customerCost.toFixed(2)
-                + ". Gotta love no sales tax. Thanks for you purchase!\n");
+            console.log(`
+            The total price is $${chalk.green(customerCost.toFixed(2))}\n
+            ${chalk.blue("\n We didn't even have to brave the\nOregon Trail to dodge that sales tax! \n")}
+            `);
             // run welcome function
             welcome();
         });
@@ -193,6 +195,6 @@ function salesRevenue(item, purchaseQty, productSales, price) {
 function exit() {
     // console.log("\nThanks for stopping by! Have a good day.");
     clear();
-    console.log(`\n${chalk.blue(figlet.textSync('Have a \nnice day!', { horizontalLayout: 'full' }),"\nThank you for dropping by!")}\n`);
+    console.log(`\n${chalk.blue(figlet.textSync('Have a \nnice day!', { horizontalLayout: 'full' }), "\nThank you for dropping by!")}\n`);
     connection.end();
 }
